@@ -28,6 +28,35 @@ gsap.ticker.add((time) => {
 });
 gsap.ticker.lagSmoothing(0, 0);
 
+// ── Mobile hamburger menu ──────────────────────────────────
+const hamburgerBtn = document.getElementById('hamburger');
+const navLinks     = document.getElementById('nav-links');
+
+if (hamburgerBtn && navLinks) {
+    hamburgerBtn.addEventListener('click', () => {
+        hamburgerBtn.classList.toggle('open');
+        navLinks.classList.toggle('mobile-open');
+    });
+
+    // Close on link click (smooth UX)
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            hamburgerBtn.classList.remove('open');
+            navLinks.classList.remove('mobile-open');
+        });
+    });
+
+    // Close when tapping outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#main-nav')) {
+            hamburgerBtn.classList.remove('open');
+            navLinks.classList.remove('mobile-open');
+        }
+    });
+}
+
+
+
 // Product Data Object
 const productData = {
     "1": {

@@ -14,12 +14,17 @@
         <svg class="back-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         Back
     </a>
-    <nav class="navbar detail-nav">
+    <nav class="navbar detail-nav" id="main-nav">
         <a href="index.html" class="logo">NIVASA</a>
-        <div class="nav-links">
+        <div class="nav-links" id="nav-links">
             <a href="index.html#collection">Back to Collection</a>
         </div>
-        <div class="cart-btn" id="cart-main-btn">Cart (0)</div>
+        <div class="nav-right">
+            <div class="cart-btn" id="cart-main-btn">Cart (0)</div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
     </nav>
 
     <main class="product-detail-container">
