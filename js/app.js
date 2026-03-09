@@ -51,6 +51,35 @@ if (hamburgerBtn && navLinks) {
     });
 }
 
+// ── Location Modal Logic ──────────────────────────────────────────────
+const visitStoreBtns = document.querySelectorAll('.visit-store-btn');
+const locationOverlay = document.getElementById('location-overlay');
+const closeLocationBtn = document.getElementById('close-location-btn');
+
+visitStoreBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        locationOverlay.classList.add('active');
+        if (typeof lenis !== 'undefined') lenis.stop(); // Stop scroll when map open
+    });
+});
+
+if (closeLocationBtn) {
+    closeLocationBtn.addEventListener('click', () => {
+        locationOverlay.classList.remove('active');
+        if (typeof lenis !== 'undefined') lenis.start();
+    });
+}
+
+if (locationOverlay) {
+    // Close when clicking the dark overlay background
+    locationOverlay.addEventListener('click', (e) => {
+        if (e.target === locationOverlay) {
+            locationOverlay.classList.remove('active');
+            if (typeof lenis !== 'undefined') lenis.start();
+        }
+    });
+}
 
 
 // Product Data Object
@@ -598,6 +627,113 @@ if (document.querySelector('.about-section')) {
         duration: 1.5,
         ease: "power3.out"
     });
+}
+
+// ── Testimonials Section Animations ────────────────────────────────────
+if (document.querySelector('.testimonials-section')) {
+
+    // Disable CSS marquee initially — JS will re-enable after reveal
+    const track = document.getElementById('testimonials-track');
+    if (track) track.style.animationPlayState = 'paused';
+
+    // Header: fade + rise
+    gsap.from('.testimonials-header h2', {
+        scrollTrigger: { trigger: '.testimonials-section', start: 'top 80%' },
+        y: 40, opacity: 0, duration: 1.2, ease: 'power3.out'
+    });
+    gsap.from('.testimonials-header p', {
+        scrollTrigger: { trigger: '.testimonials-section', start: 'top 80%' },
+        y: 30, opacity: 0, duration: 1, delay: 0.2, ease: 'power3.out'
+    });
+
+    // Cards: stagger-reveal, then start marquee once done
+    const allCards = gsap.utils.toArray('.testimonials-track .testimonial-card');
+    gsap.from(allCards, {
+        scrollTrigger: { trigger: '.testimonials-track-wrapper', start: 'top 88%' },
+        y: 70,
+        opacity: 0,
+        duration: 0.9,
+        stagger: 0.07,
+        ease: 'power4.out',
+        onComplete: () => {
+            // Clear ALL residual inline transforms GSAP left behind so the
+            // CSS @keyframes marquee starts from a clean slate — prevents
+            // the first-card "jump up" glitch on loop restart.
+            gsap.set(allCards, { clearProps: 'transform,y,opacity' });
+            if (track) track.style.animationPlayState = 'running';
+        }
+    });
+
+    // 3D tilt on individual card mouse-move + fast ONE-TIME entry spin
+    allCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            // Only perform the 360 spin once per card
+            if (card.dataset.hasSpun) return;
+            
+            // Set flags: one for "currently spinning", one for "already spun"
+            card.dataset.isFlipping = "true";
+            card.dataset.hasSpun = "true";
+            
+            // Fast one-time 360-degree rotation flip (left to right)
+            gsap.fromTo(card, 
+                { rotateY: -360, scale: 0.95, opacity: 0.7 },
+                { 
+                    rotateY: 0, 
+                    scale: 1, 
+                    opacity: 1,
+                    duration: 0.8, 
+                    ease: "back.out(1.2)",
+                    overwrite: 'auto',
+                    onComplete: () => {
+                        delete card.dataset.isFlipping;
+                    }
+                }
+            );
+        });
+
+        card.addEventListener('mousemove', (e) => {
+            if (card.dataset.isFlipping === "true") return; // Wait until spin finishes
+
+            const rect = card.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width - 0.5) * 14;
+            const y = ((e.clientY - rect.top)  / rect.height - 0.5) * 10;
+            gsap.to(card, {
+                rotateY: x,
+                rotateX: -y,
+                duration: 0.45,
+                ease: 'power2.out',
+                transformPerspective: 900,
+                overwrite: 'auto'
+            });
+        });
+
+        card.addEventListener('mouseleave', () => {
+            delete card.dataset.isFlipping;
+            gsap.to(card, {
+                rotateY: 0, rotateX: 0,
+                duration: 0.8,
+                ease: 'power3.out',
+                overwrite: 'auto',
+                onComplete: () => gsap.set(card, { clearProps: 'transform,opacity' })
+            });
+        });
+    });
+
+    // Reset spin memory when card loops out of view
+    const cardMemoryObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            // If the card has completely exited the visible track area...
+            if (!entry.isIntersecting) {
+                // ...wipe its memory so it spins again next time it loops around
+                delete entry.target.dataset.hasSpun;
+            }
+        });
+    }, {
+        root: document.querySelector('.testimonials-track-wrapper'),
+        threshold: 0 // Trigger as soon as 1px is visible/hidden
+    });
+
+    allCards.forEach(card => cardMemoryObserver.observe(card));
 }
 
 // Contact Section Animation (Shared)
