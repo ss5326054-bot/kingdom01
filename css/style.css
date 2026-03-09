@@ -109,17 +109,26 @@ html.lenis {
     box-shadow: 0 1px 0 rgba(212, 175, 55, 0.12);
 }
 
-.logo {
+.logo,
+a.logo,
+a.logo:link,
+a.logo:visited,
+a.logo:active {
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     cursor: pointer;
+    color: #ffffff !important;
+    text-decoration: none !important;
     transition: letter-spacing 0.4s ease, text-shadow 0.4s ease;
 }
 
-.logo:hover {
+.logo:hover,
+a.logo:hover {
     letter-spacing: 0.35em;
     text-shadow: 0 0 14px rgba(212, 175, 55, 0.6), 0 0 40px rgba(212, 175, 55, 0.2);
+    color: #ffffff !important;
+    text-decoration: none !important;
 }
 
 .nav-links {
